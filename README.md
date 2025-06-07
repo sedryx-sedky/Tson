@@ -1,5 +1,5 @@
-# TSON
-TSON (Typed Structured Object Notation) is a human-readable, strongly typed superset of JSON, inspired by Haskell’s Algebraic Data Types (ADTs). The idea is to create a flexible and expressive data format that makes it easy to define complex structured data with strong types, which could in principle be decoded into native structures in your host language (e.g. Python, Haskell, Rust, etc.).
+# Sedky
+SEDKY (Structured Expressive Data-format, kinda like YAML — yes, that’s a tortured acronym of my surname 🙃) is a human-readable, strongly typed superset of JSON, inspired by Haskell’s Algebraic Data Types (ADTs). The idea is to create a flexible and expressive data format that makes it easy to define complex structured data with strong types, which could in principle be decoded into native structures in your host language (e.g. Python, Haskell, Rust, etc.).
 
 ## Quick Introduction
 This started from a small idea I had while working on a project: I wanted to store a Python class outside of the program and load it back in later. While `pickle` seemed like an obvious option, it came with serious safety concerns—mainly because it can execute arbitrary code when loading data. The safer alternative was JSON, but I quickly hit its limitations in terms of how expressive it could be.
@@ -11,12 +11,14 @@ That line of thinking eventually led me to combine ideas from Haskell and JSON, 
 ### Just a Note
 This was something I put together out of curiosity one afternoon. I haven’t deeply researched whether similar formats already exist, and I didn’t set out to copy anyone’s work—just to explore an idea I found interesting. I’m a maths student who enjoys writing down ideas like this for fun.
 
+At present this is just an idea, I have not built anything. Am open to any critisms or areas of improvment if you any other person has actually bothered to read this.
+
 ChatGPT helped tidy up the grammar and writing in this README.
 
 ## Design Objectives
-1. *JSON-Compatible*: TSON is designed as a superset of JSON—all valid JSON files are also valid TSON files.
+1. *JSON-Compatible*: SEDKY is designed as a superset of JSON—all valid JSON files are also valid TSON files.
 
-2. *Readable*: TSON prioritizes human readability. Files should be easy to understand and manually edit.
+2. *Readable*: SEDKY prioritizes human readability. Files should be easy to understand and manually edit.
 
 3. *Expressive*: The format supports rich and structured data, making it easy to represent complex information.
 
@@ -24,7 +26,7 @@ ChatGPT helped tidy up the grammar and writing in this README.
 
 ## Design
 ### Primitive Types
-Like JSON, TSON includes a set of primitive types:
+Like JSON, SEDKY includes a set of primitive types:
 
 1. *Strings*
 2. *Integers and Floats*
@@ -33,7 +35,7 @@ Like JSON, TSON includes a set of primitive types:
 5. *Optionals*
 
 ### ADTs
-TSON supports Algebraic Data Types, inspired by Haskell. These are declared using the `type` keyword and can represent enums, records, and more.
+SEDKY supports Algebraic Data Types, inspired by Haskell. These are declared using the `type` keyword and can represent enums, records, and more.
 ```python
 type bool = true | false
 ```
