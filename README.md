@@ -46,21 +46,19 @@ Parameterized types are also supported:
 ```python
 type maybe a = nothing | just a
 ```
-
 #### Simple Example
 Here’s an example of a custom ADT used to model a user:
 ```python
 type user = user {username: str, phone_number: optional str, email: str}
 
 user(
-	username: "sedryx-sedky"
-	phone_number: null
-	email: "sedryx.sedky@tson.dev"
+  username: "sedryx-sedky"
+  phone_number: null
+  email: "sedryx.sedky@tson.dev"
 )
 ```
 
 Note how, just like in Haskell, even something as simple as `bool` can be defined as a sum type rather than relying on a built-in primitive.
-
 #### Extended Example
 Let’s say we want to give more structure to an email address rather than just storing it as a string:
 ```python
@@ -68,13 +66,13 @@ type email = email {name: str, provider: str, domain: str}
 type user = user {username: str, phone_number: optional str, email: str}
 
 user(
-	username: "sedryx-sedky"
-	phone_number: null
-	email: email (
-			name: "sedryx.sedky"
-			provider: "tson"
-			domain: "dev"
-		)
+  username: "sedryx-sedky"
+  phone_number: null
+  email: email (
+      name: "sedryx.sedky"
+      provider: "tson"
+      domain: "dev"
+    )
 )
 ```
 
@@ -90,9 +88,9 @@ type user = user {username: str, phonenumber: optional str, email: email}
 "{a}@{b}.{c}" => email (name: a, provider: b, domain: c)
 
 user(
-	username: "sedryx-sedky"
-	phonenumber: null
-	email: "sedryx.sedky@tson.dev"
+  username: "sedryx-sedky"
+  phonenumber: null
+  email: "sedryx.sedky@tson.dev"
 )
 ```
 
@@ -104,17 +102,17 @@ type email = email {name: str, provider: str, domain: str}
 type user = user {username: str, phonenumber: optional str, email: email}
 
 "{a}@{b}.{c}" => email (name: a, provider: b, domain: c)
-	where remove_whitespace(a) != ""
+  where remove_whitespace(a) != ""
 
 user(
-	username: "sedryx-sedky"
-	phonenumber: null
-	email: "sedryx.sedky@tson.dev"
+  username: "sedryx-sedky"
+  phonenumber: null
+  email: "sedryx.sedky@tson.dev"
 )
 ```
 
 ## Syntax
-## Algebratic Data Types (ADTs)
+### Algebratic Data Types (ADTs)
 Algebraic Data Types (ADTs) can be defined using either *pipe-separated* or *newline-separated* constructors.
 *Syntax (Pipe Style)*
 ```python
@@ -144,27 +142,46 @@ type result =
   failure {error: str}
 ```
 
-
-A `where` clause can be used to impose constraints on constructor fields. These constraints may apply to an individual constructor or to a group of constructors above the clause.
+A `where` clause can be used to impose constraints on constructor fields. These constraints may apply to individual constructors or to groups of constructors using the `for` and `except` keywords.
 ```python
-type shipping_method = 
-  standard { days: int }
-  express { days: int, cost: money }
-  	where days > 0
-  		  cost > 0
+type payment_method =
+  cash {amount: money}
+  check {amount: money, check_number: str, bank_routing: str}
+  credit_card {amount: money, card_number: str, cvv: str, expiry: date}
+  debit_card {amount: money, card_number: str, pin: str}
+  gift_card {amount: money, card_code: str}
+  store_credit {amount: money, credit_id: str}
+  crypto {amount: money, wallet_address: str, transaction_hash: str}
 
-  overnight { cost: money }
-  	where cost > 0
+    where amount > 0.99 except crypto
+    where
+      len(card_number) == 16
+      len(cvv) == 3
+    where amount <= 10_000 for cash
 ```
 
-In the example above, the first where clause applies to both `standard` and `express`, while the second applies only to `overnight`.
+In the example above:
 
-`where` clauses support Boolean operations such as `and`, `or`, and `not`. Sequential lines within the same where clause are implicitly conjoined with `and`.
+* The constraint `amount > 0.99` applies to all constructors except crypto.
 
-You may also attach a `where` clause directly to an individual constructor in pipe-separated syntax:
+* The constraint `amount <= 10_000` applies only to the cash constructor.
+
+* The constraints on `card_number` and `cvv` apply to any constructor that defines those fields.
+
+Each `where` clause is evaluated in the order it appears. If a constraint refers to a field that does *not* exist in a constructor, it is treated as vacuously true — the check passes and evaluation continues. This avoids unnecessary errors for constructors that do not contain certain fields.
+
+`where` clauses support boolean operations such as `and`, `or`, and `not`. Multiple lines within a single where clause are implicitly joined with `and`.
+
+You may also attach a `where` clause directly to an individual constructor:
 ```python
 type example = foo {x: int} where x > 4 | bar {y: int}
 ```
+This is simply syntactic sugar for:
+```python
+type example = foo {x: int} | bar {y: int}
+  where x > 4 for foo
+```
+The attached `where` clause is treated as a scoped constraint on that constructor alone. This provides a concise way to declare simple, constructor-specific rules inline.
 
 As in Haskell, type names and constructor names reside in separate namespaces. Field names are optional, and parameterized types are fully supported:
 
@@ -195,7 +212,6 @@ book (
 ```
 
 The system will infer the correct type of the anonymous constructor (`person` in this case) and wrap it accordingly. Additional syntactic sugar is available to provide a more YAML-like syntax.
-
 ### References
 TSON supports named references to improve modularity and express complex or recursive data structures.
 ```python
@@ -206,65 +222,62 @@ This mechanism enables shared substructures and cyclic relationships.
 *Example*
 ```python
 type person = person {
-	name: str,
-	father: optional person,
-	mother: optional person,
-	children: list person
+  name: str,
+  father: optional person,
+  mother: optional person,
+  children: list person
 }
 
 homer := person(
-	name: "Homer"
-	father: nil
-	mother: nil
-	children: [!bart, !lisa, !maggie]
+  name: "Homer"
+  father: nil
+  mother: nil
+  children: [!bart, !lisa, !maggie]
 )
 
 marge := person(
-	name: "Marge"
-	father: nil
-	mother: nil
-	children: !homer.children
+  name: "Marge"
+  father: nil
+  mother: nil
+  children: !homer.children
 )
 
 bart := person(
-	name: "Bart"
-	father: !homer
-	mother: !marge
-	children: []
+  name: "Bart"
+  father: !homer
+  mother: !marge
+  children: []
 )
 
 lisa := person(
-	name: "Lisa"
-	father: !homer
-	mother: !marge
-	children: []
+  name: "Lisa"
+  father: !homer
+  mother: !marge
+  children: []
 )
 
 maggie := person(
-	name: "Maggie"
-	father: !homer
-	mother: !marge
-	children: []
+  name: "Maggie"
+  father: !homer
+  mother: !marge
+  children: []
 )
 
 ```
 This referencing model avoids duplication, promotes clarity, and facilitates expressive representations of linked or hierarchical data.
-
-
-## Syntactic Sugar
-### Anonymous Constructors
+### Syntactic Sugar
+#### Anonymous Constructors
 For single-constructor types, TSON provides a YAML-like shorthand to improve readability:
 ```python
 type_constructor:
-	field: value
-	other_field: other_value
+  field: value
+  other_field: other_value
 ```
 This is syntactic sugar for:
 ```python
 type_constructor {field: value, other_field: other_value}
 ```
-
-### Lists
+#### Lists
 TSON supports a compact and expressive syntax for lists, particularly useful for long or nested arrays inspired by YAML.
 ```python
 type operating_systems = operating_systems (list str)
@@ -279,8 +292,7 @@ This desugars to:
 operating_systems (["macOS", "Linux", "Windows"])
 ```
 This notation aims to enhance clarity, especially when working with large or nested lists.
-
-### Lists of Anonymous Constructors
+#### Lists of Anonymous Constructors
 When a constructor expects a list of structured records, TSON supports a compact and expressive syntax combining list and anonymous constructor notation.
 *Example*
 Suppose we define a person type and a group type that holds a list of person values:
@@ -328,7 +340,7 @@ type shipping_method =
   standard { days: int }
   express { days: int, cost: money }
   overnight { cost: money }
-	  where days > 0
+    where days > 0
 
 type payment_status = pending | processing | completed | failed
 
@@ -381,7 +393,6 @@ order(
   notes: null
 )
 ```
-
 ## Comparision to YAML
 Below is a comparison of the same data stored in YAML and TSON.
 *TSON*
@@ -456,7 +467,6 @@ allergies:
   - Penicillin
 
 ```
-
 ## Return Structures
 TSON isn’t just about defining structured data—it’s also meant to return that structure in your host language in a clean and natural way.
 
@@ -467,12 +477,12 @@ type email = email {name: str, provider: str, domain: str}
 type user = user {username: str, phonenumber: optional str, email: email}
 
 "{a}@{b}.{c}" => email (name: a, provider: b, domain: c)
-	where remove_whitespace(a) != ""
+  where remove_whitespace(a) != ""
 
 user(
-	username: "sedryx-sedky",
-	phonenumber: null,
-	email: "sedryx.sedky@tson.dev"
+  username: "sedryx-sedky",
+  phonenumber: null,
+  email: "sedryx.sedky@tson.dev"
 )
 ```
 
@@ -482,7 +492,7 @@ Now, in Python, we could parse and use this structured data like so:
 import tson
 
 with open('/path/to/file.tson', 'r') as file:
-	users = tson.load(file.read())
+  users = tson.load(file.read())
 
 user = users[0]
 
@@ -495,13 +505,13 @@ Under the hood, the `tson` parser would generate or return classes that match th
 ```python
 class Email(TsonType): pass
 class email(Email):
-	name: str
-	provider: str
-	domain: str
+  name: str
+  provider: str
+  domain: str
 
 class User(TsonType): pass
 class user(User):
-	username: str
-	phonenumber: Optional[str]
-	email: Email
+  username: str
+  phonenumber: Optional[str]
+  email: Email
 ```
