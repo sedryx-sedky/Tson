@@ -1,5 +1,7 @@
-# Sedky
-SEDKY (Structured Expressive Data-format, kinda like YAML — yes, that’s a tortured acronym of my surname 🙃) is a human-readable, strongly typed superset of JSON, inspired by Haskell’s Algebraic Data Types (ADTs). The idea is to create a flexible and expressive data format that makes it easy to define complex structured data with strong types, which could in principle be decoded into native structures in your host language (e.g. Python, Haskell, Rust, etc.).
+#Sedky
+SEDKY (Structured Expressive Data-format — Kinda YAML, and yes, the acronym is a tortured version of my surname 🙃) is a human-readable, strongly typed superset of JSON. Inspired by Haskell’s Algebraic Data Types (ADTs), it’s designed to make defining complex, structured data both expressive and safe — without sacrificing readability. The format allows you to model rich, type-safe data structures that could, in principle, be directly decoded into native types in a host language such as Python, Haskell, or Rust.
+
+The project began as TSON (Typed JSON), but the format gradually took on more influence from YAML than from its original JSON roots, leading to a name change. Some parts of the documentation still refer to it as TSON.
 
 ## Quick Introduction
 This started from a small idea I had while working on a project: I wanted to store a Python class outside of the program and load it back in later. While `pickle` seemed like an obvious option, it came with serious safety concerns—mainly because it can execute arbitrary code when loading data. The safer alternative was JSON, but I quickly hit its limitations in terms of how expressive it could be.
